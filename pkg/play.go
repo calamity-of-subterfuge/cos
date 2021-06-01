@@ -25,6 +25,14 @@ type Config struct {
 	AIConfig *AIConfig
 }
 
+// Play is an optional function to take over the majority of the boilerplate
+// from the main function of your AI. It will use the given configuration
+// and gameConstructor to connect to the lobby socket server and, when it
+// receives a match from the lobby socket server it spawns a GameHub to
+// manage the game using the given gameConstructor.
+//
+// Essentially, this goes through all the boilerplate prior to having a Game
+// initialized.
 func Play(cfg *Config, gameConstructor GameConstructor) {
 	for {
 		log.Println("Logging in...")

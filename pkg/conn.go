@@ -12,7 +12,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// PreparablePacket can be implemented by packets to get a chance to initialize
+// things prior to being marshaled and sent across the connection. This is most
+// typically used for setting the Type field on the packet.
 type PreparablePacket interface {
+	// PrepareForMarshal is called prior to marshalling the packet which is to
+	// be sent across the connection.
 	PrepareForMarshal()
 }
 
