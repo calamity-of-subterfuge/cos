@@ -5,7 +5,7 @@ lobby socket server and game server.
 
 ## Getting Started
 
-See [the example](example/onefile/main.go)
+See [the example](examples/onefile/main.go)
 
 ## Installation
 
