@@ -1,6 +1,6 @@
 package client
 
-import "github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+import "github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 
 // Resource describes a resource from the perspective of the client.
 type Resource struct {

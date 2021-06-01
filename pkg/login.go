@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/utils"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 	"golang.org/x/net/http2"
 )
 

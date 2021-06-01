@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/utils"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 // Player describes a player in the world from the perspective of the client

@@ -1,9 +1,9 @@
 package client
 
 import (
-	"github.com/calamity-of-subterfuge/cos/v2/lib/rbuf"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/utils"
+	"github.com/calamity-of-subterfuge/cos/lib/rbuf"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 // Chat maintains the chat history and current set of chat authors

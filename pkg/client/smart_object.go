@@ -3,7 +3,7 @@ package client
 import (
 	"log"
 
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 )
 
 // SmartObject describes a "fancy" non-player unit in the world. These are

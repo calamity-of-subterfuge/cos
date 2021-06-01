@@ -3,7 +3,7 @@ package client
 import (
 	"log"
 
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 )
 
 // State describes the general state of the world from the perspective of the

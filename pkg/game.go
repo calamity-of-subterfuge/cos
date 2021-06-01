@@ -3,7 +3,7 @@ package pkg
 import (
 	"time"
 
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 )
 
 // Game describes something which actually plays the game, i.e., controls the

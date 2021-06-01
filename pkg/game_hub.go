@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 	"github.com/gorilla/websocket"
 )
 

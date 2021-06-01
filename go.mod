@@ -1,4 +1,4 @@
-module github.com/calamity-of-subterfuge/cos/v2
+module github.com/calamity-of-subterfuge/cos
 
 go 1.15
 

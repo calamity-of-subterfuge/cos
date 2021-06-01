@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 )
 
 // SmartObjectAdditional describes additional information on a SmartObject

@@ -1,6 +1,6 @@
 package client
 
-import "github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+import "github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 
 // ChatAuthor describes a chat author from the perspective of the client
 type ChatAuthor struct {

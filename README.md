@@ -10,5 +10,5 @@ See [the example](examples/onefile/main.go)
 ## Installation
 
 ```bash
-go get github.com/calamity-of-subterfuge/cos/v2
+go get github.com/calamity-of-subterfuge/cos
 ```

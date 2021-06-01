@@ -5,10 +5,11 @@ import (
 	"math/rand"
 	"time"
 
-	cos "github.com/calamity-of-subterfuge/cos/v2/pkg"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/client"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/clipkts"
-	"github.com/calamity-of-subterfuge/cos/v2/pkg/srvpkts"
+	cos "github.com/calamity-of-subterfuge/cos/pkg"
+	"github.com/calamity-of-subterfuge/cos/pkg/client"
+	"github.com/calamity-of-subterfuge/cos/pkg/clipkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 // Game typically goes in a different file and is your implementation of
@@ -92,7 +93,7 @@ func RunExample() {
 	var aiName string = "ExampleAI"
 	var aiUID string = "example-ai"
 	var version string = "0.0.1"
-	var role cos.Role = cos.RoleEconomyAI
+	var role utils.Role = utils.RoleEconomyAI
 
 	aiCfg := &cos.AIConfig{
 		AIName:                 aiName,
