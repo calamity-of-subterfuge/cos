@@ -97,7 +97,7 @@ func makeCPShape(body *cp.Body, shp *srvpkts.Shape) *cp.Shape {
 	case "polygon":
 		var details srvpkts.PolygonDetails
 		if err := mapstructure.Decode(shp.Details, &details); err != nil {
-			log.Fatalf("error decoding polygon details in %v: %v", shp, err)
+			log.Panicf("error decoding polygon details in %v: %v", shp, err)
 		}
 
 		cpVerts := make([]cp.Vector, len(details.Vertices))
@@ -109,7 +109,7 @@ func makeCPShape(body *cp.Body, shp *srvpkts.Shape) *cp.Shape {
 		res.SetMass(shp.Mass)
 		return res
 	default:
-		log.Fatalf("unknown shape type: %v", shp.ShapeType)
+		log.Panicf("unknown shape type: %q", shp.ShapeType)
 		return nil
 	}
 }
