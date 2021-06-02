@@ -32,7 +32,7 @@ type GameSyncPacket struct {
 	GameTime float64 `mapstructure:"game_time" json:"game_time"`
 
 	// Player describes high-level information about the actual player
-	Player GameSyncPacketPlayer `mapstructure:"game_time" json:"player"`
+	Player GameSyncPacketPlayer `mapstructure:"player" json:"player"`
 
 	// Team describes high-level information about the team the player is on
 	Team GameSyncPacketTeam `mapstructure:"team" json:"team"`
