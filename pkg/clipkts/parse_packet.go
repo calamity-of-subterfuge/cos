@@ -10,7 +10,7 @@ import (
 
 type packetParser func(map[string]interface{}) (Packet, error)
 
-var packetParsersByType map[string]packetParser
+var packetParsersByType map[string]packetParser = make(map[string]packetParser)
 
 func registerPacketParser(typ string, parser packetParser) {
 	packetParsersByType[typ] = parser
