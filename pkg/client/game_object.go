@@ -76,6 +76,7 @@ func (o *GameObject) Sync(packet *srvpkts.GameObjectSync) *GameObject {
 	body.SetVelocity(packet.Velocity.X, packet.Velocity.Y)
 	body.SetAngle(packet.Rotation)
 	body.SetAngularVelocity(packet.AngularVelocity)
+	o.Body = body
 	return o
 }
 
