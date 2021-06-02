@@ -19,7 +19,7 @@ type Player struct {
 
 // Sync this player to match the given sync information
 func (p *Player) Sync(sync *srvpkts.PlayerSync) *Player {
-	p.GameObject.Sync(&sync.GameObjectSync)
+	p.GameObject = (&GameObject{}).Sync(&sync.GameObjectSync)
 	p.Role = utils.RoleFromName(sync.Role)
 	p.Team = sync.Team
 	return p

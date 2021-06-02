@@ -38,7 +38,7 @@ type SmartObject struct {
 
 // Sync this smart object with the given sync information
 func (o *SmartObject) Sync(sync *srvpkts.SmartObjectSync) *SmartObject {
-	o.GameObject.Sync(&sync.GameObjectSync)
+	o.GameObject = (&GameObject{}).Sync(&sync.GameObjectSync)
 	o.UnitType = sync.UnitType
 	o.CurrentHealth = sync.CurrentHealth
 	o.MaxHealth = sync.MaxHealth
