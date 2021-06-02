@@ -75,6 +75,8 @@ func NewHub(lobbyConn *websocket.Conn, welcomeMsg map[string]interface{}, gameCo
 func (h *Hub) Manage() error {
 	var manageEndReason error
 
+	log.Printf("Hub manage loop started..")
+
 manageLoop:
 	for {
 		select {
