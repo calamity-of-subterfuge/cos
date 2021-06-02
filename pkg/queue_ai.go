@@ -93,8 +93,8 @@ func QueueAI(cfg *AIConfig, auth *AuthToken) (*websocket.Conn, map[string]interf
 		return nil, nil, fmt.Errorf("wrong message type (%d) for welcome message", msgType)
 	}
 
-	var parsedWelcome map[string]interface{}
-	err = json.Unmarshal(welcomeResponse, &parsedWelcome)
+	var parsedWelcomeRaw interface{}
+	err = json.Unmarshal(welcomeResponse, &parsedWelcomeRaw)
 	if err != nil {
 		closeConn(websocket.ClosePolicyViolation, conn)
 		return nil, nil, fmt.Errorf("could not parse welcome message (%s): %w", string(welcomeResponse), err)
@@ -104,6 +104,16 @@ func QueueAI(cfg *AIConfig, auth *AuthToken) (*websocket.Conn, map[string]interf
 	if err != nil {
 		closeConn(websocket.CloseInternalServerErr, conn)
 		return nil, nil, fmt.Errorf("clear read deadline: %w", err)
+	}
+
+	var parsedWelcome map[string]interface{}
+	switch v := parsedWelcomeRaw.(type) {
+	case []interface{}:
+		parsedWelcome = v[0].(map[string]interface{})
+	case map[string]interface{}:
+		parsedWelcome = v
+	default:
+		return nil, nil, fmt.Errorf("could not parse welcome message (%s): unknown type", string(welcomeResponse))
 	}
 
 	return conn, parsedWelcome, nil
