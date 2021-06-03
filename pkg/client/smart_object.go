@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 // SmartObject describes a "fancy" non-player unit in the world. These are
@@ -27,9 +28,8 @@ type SmartObject struct {
 	// ControllingTeam is the team which controls this object.
 	ControllingTeam int
 
-	// ControllingRole is the role required to control this object. See core.Role
-	// and core.RoleToName.
-	ControllingRole string
+	// ControllingRole is the role required to control this object. See utils.Role
+	ControllingRole utils.Role
 
 	// Additional contains the SyncInfo on the Unit controlling this smart object,
 	// and depends on the type of unit.
@@ -43,7 +43,7 @@ func (o *SmartObject) Sync(sync *srvpkts.SmartObjectSync) *SmartObject {
 	o.CurrentHealth = sync.CurrentHealth
 	o.MaxHealth = sync.MaxHealth
 	o.ControllingTeam = sync.ControllingTeam
-	o.ControllingRole = sync.ControllingRole
+	o.ControllingRole = utils.RoleFromName(sync.ControllingRole)
 	add, err := ParseSmartObjectAdditional(sync)
 	if err != nil {
 		log.Fatalf("while syncing smart object with %v: %v", sync, err)

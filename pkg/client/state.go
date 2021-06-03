@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 // State describes the general state of the world from the perspective of the
@@ -16,6 +17,9 @@ type State struct {
 
 	// MyTeam is the team that the player for this client is on
 	MyTeam int
+
+	// MyRole is the role of the player for this client
+	MyRole utils.Role
 
 	// GameTime is the current game time
 	GameTime float64
@@ -40,6 +44,11 @@ type State struct {
 	// ResourcesByUID contains all the resources on the clients team, mapped
 	// from their uid.
 	ResourcesByUID map[string]*Resource
+
+	onSelfLoaded                    []func(*Player)
+	onControllableSmartObjectLoaded []func(*SmartObject)
+	onSelfLost                      []func(*Player)
+	onControllableSmartObjectLost   []func(*SmartObject)
 }
 
 // NewState initializes a blank state that will need the game sync packet
@@ -47,6 +56,51 @@ type State struct {
 // be considered invalid if the GameTime is 0.
 func NewState() *State {
 	return &State{}
+}
+
+// OnSelfLoaded will register the given listener to be called whenever
+// the Player with uid s.MyUID is loaded from a packet. Typically this
+// is on game sync.
+func (s *State) OnSelfLoaded(listener func(*Player)) {
+	if s.onSelfLoaded == nil {
+		s.onSelfLoaded = []func(*Player){listener}
+	} else {
+		s.onSelfLoaded = append(s.onSelfLoaded, listener)
+	}
+}
+
+// OnSelfLost will register the given listener to be called whenever
+// the Player with uid s.MyUID is removed from the game. Typically
+// is the first stage of a game sync packet.
+func (s *State) OnSelfLost(listener func(*Player)) {
+	if s.onSelfLost == nil {
+		s.onSelfLost = []func(*Player){listener}
+	} else {
+		s.onSelfLost = append(s.onSelfLost, listener)
+	}
+}
+
+// OnControllableSmartObjectLoaded is called when a new smart object
+// that the player can control is loaded from a packet, such as via
+// a game sync or because it just came into vision or it was just
+// created.
+func (s *State) OnControllableSmartObjectLoaded(listener func(*SmartObject)) {
+	if s.onControllableSmartObjectLoaded == nil {
+		s.onControllableSmartObjectLoaded = []func(*SmartObject){listener}
+	} else {
+		s.onControllableSmartObjectLoaded = append(s.onControllableSmartObjectLoaded, listener)
+	}
+}
+
+// OnControllableSmartObjectLost is called whenever a smart object which
+// is controlled by the player is lost, such as at the beginning of a game
+// sync, because it died, or because we lost vision of it.
+func (s *State) OnControllableSmartObjectLost(listener func(*SmartObject)) {
+	if s.onControllableSmartObjectLost == nil {
+		s.onControllableSmartObjectLost = []func(*SmartObject){listener}
+	} else {
+		s.onControllableSmartObjectLost = append(s.onControllableSmartObjectLost, listener)
+	}
 }
 
 // HandleMessage should be called whenever a new server packet is received. If
@@ -59,9 +113,21 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 		s.GenericObjectsByUID[v.Object.UID] = (&GameObject{}).Sync(&v.Object)
 	case *srvpkts.GameObjectRemovedPacket:
 		s.updateGameTime(v.GameTime)
-		if _, found := s.PlayersByUID[v.UID]; found {
+		if ov, found := s.PlayersByUID[v.UID]; found {
+			if v.UID == s.MyUID && s.onSelfLost != nil {
+				for _, listener := range s.onSelfLost {
+					listener(ov)
+				}
+			}
+
 			delete(s.PlayersByUID, v.UID)
-		} else if _, found := s.SmartObjectsByUID[v.UID]; found {
+		} else if ov, found := s.SmartObjectsByUID[v.UID]; found {
+			if ov.ControllingTeam == s.MyTeam && ov.ControllingRole == s.MyRole && s.onControllableSmartObjectLost != nil {
+				for _, listener := range s.onControllableSmartObjectLost {
+					listener(ov)
+				}
+			}
+
 			delete(s.PlayersByUID, v.UID)
 		} else {
 			delete(s.GenericObjectsByUID, v.UID)
@@ -79,10 +145,24 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 		s.handleGameSync(v)
 	case *srvpkts.PlayerAddedPacket:
 		s.updateGameTime(v.GameTime)
-		s.PlayersByUID[v.Object.UID] = (&Player{}).Sync(&v.Object)
+		newPlayer := (&Player{}).Sync(&v.Object)
+		s.PlayersByUID[v.Object.UID] = newPlayer
+
+		if newPlayer.GameObject.UID == s.MyUID && s.onSelfLoaded != nil {
+			for _, listener := range s.onSelfLoaded {
+				listener(newPlayer)
+			}
+		}
 	case *srvpkts.SmartObjectAddedPacket:
 		s.updateGameTime(v.GameTime)
-		s.SmartObjectsByUID[v.Object.UID] = (&SmartObject{}).Sync(&v.Object)
+		newSO := (&SmartObject{}).Sync(&v.Object)
+		s.SmartObjectsByUID[v.Object.UID] = newSO
+
+		if newSO.ControllingTeam == s.MyTeam && newSO.ControllingRole == s.MyRole && s.onControllableSmartObjectLoaded != nil {
+			for _, listener := range s.onControllableSmartObjectLoaded {
+				listener(newSO)
+			}
+		}
 	case *srvpkts.SmartObjectUpdatePacket:
 		s.updateGameTime(v.GameTime)
 		s.SmartObjectsByUID[v.UID].Update(v)
@@ -95,8 +175,28 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 }
 
 func (s *State) handleGameSync(packet *srvpkts.GameSyncPacket) {
+	if s.MyUID != "" && s.onSelfLost != nil {
+		me, found := s.PlayersByUID[s.MyUID]
+		if found {
+			for _, listener := range s.onSelfLost {
+				listener(me)
+			}
+		}
+	}
+
+	if s.SmartObjectsByUID != nil && s.onControllableSmartObjectLost != nil {
+		for _, so := range s.SmartObjectsByUID {
+			if so.ControllingTeam == s.MyTeam && so.ControllingRole == s.MyRole {
+				for _, listener := range s.onControllableSmartObjectLost {
+					listener(so)
+				}
+			}
+		}
+	}
+
 	s.MyUID = packet.Player.UID
 	s.MyTeam = packet.Player.Team
+	s.MyRole = utils.RoleFromName(packet.Player.Role)
 	s.GameTime = packet.GameTime
 
 	s.PlayersByUID = make(map[string]*Player, len(packet.Players))
@@ -118,6 +218,25 @@ func (s *State) handleGameSync(packet *srvpkts.GameSyncPacket) {
 	s.ResourcesByUID = make(map[string]*Resource, len(packet.Resources))
 	for _, resPkt := range packet.Resources {
 		s.ResourcesByUID[resPkt.UID] = (&Resource{Amount: packet.Team.Resources[resPkt.UID]}).Sync(&resPkt)
+	}
+
+	if s.onSelfLoaded != nil {
+		me, found := s.PlayersByUID[s.MyUID]
+		if found {
+			for _, listener := range s.onSelfLoaded {
+				listener(me)
+			}
+		}
+	}
+
+	if s.onControllableSmartObjectLoaded != nil {
+		for _, so := range s.SmartObjectsByUID {
+			if so.ControllingRole == s.MyRole && so.ControllingTeam == s.MyTeam {
+				for _, listener := range s.onControllableSmartObjectLoaded {
+					listener(so)
+				}
+			}
+		}
 	}
 }
 

@@ -224,7 +224,7 @@ func (c *Conn) sendPackets(packets []interface{}) error {
 }
 
 func (c *Conn) manageRecv() {
-	// Receive is naturally cancelled promptly by manageSend
+	// Receive is naturally canceled promptly by manageSend
 	// closing the websocket
 
 	c.conn.SetPongHandler(func(string) error {
