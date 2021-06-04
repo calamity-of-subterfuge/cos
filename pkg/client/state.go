@@ -28,6 +28,10 @@ type State struct {
 	// their uid.
 	PlayersByUID map[string]*Player
 
+	// PlayerUIDsByTeamAndRole allows quickly looking up the set of players
+	// which have a given team or a given team and role.
+	PlayerUIDsByTeamAndRole TeamRoleUIDLookup
+
 	// StaticObjects contains all of the static objects in the game. These
 	// do not move or change and you can see them regardless of vision.
 	StaticObjects []GameObject
@@ -121,6 +125,7 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 			}
 
 			delete(s.PlayersByUID, v.UID)
+			s.PlayerUIDsByTeamAndRole.Remove(ov.Team, ov.Role, v.UID)
 		} else if ov, found := s.SmartObjectsByUID[v.UID]; found {
 			if ov.ControllingTeam == s.MyTeam && ov.ControllingRole == s.MyRole && s.onControllableSmartObjectLost != nil {
 				for _, listener := range s.onControllableSmartObjectLost {
@@ -128,7 +133,7 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 				}
 			}
 
-			delete(s.PlayersByUID, v.UID)
+			delete(s.SmartObjectsByUID, v.UID)
 		} else {
 			delete(s.GenericObjectsByUID, v.UID)
 		}
@@ -147,6 +152,7 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 		s.updateGameTime(v.GameTime)
 		newPlayer := (&Player{}).Sync(&v.Object)
 		s.PlayersByUID[v.Object.UID] = newPlayer
+		s.PlayerUIDsByTeamAndRole.Add(newPlayer.Team, newPlayer.Role, newPlayer.GameObject.UID)
 
 		if newPlayer.GameObject.UID == s.MyUID && s.onSelfLoaded != nil {
 			for _, listener := range s.onSelfLoaded {
@@ -200,8 +206,10 @@ func (s *State) handleGameSync(packet *srvpkts.GameSyncPacket) {
 	s.GameTime = packet.GameTime
 
 	s.PlayersByUID = make(map[string]*Player, len(packet.Players))
+	s.PlayerUIDsByTeamAndRole = make(TeamRoleUIDLookup)
 	for _, plyr := range packet.Players {
 		s.PlayersByUID[plyr.UID] = (&Player{}).Sync(&plyr)
+		s.PlayerUIDsByTeamAndRole.Add(plyr.Team, utils.RoleFromName(plyr.Role), plyr.UID)
 	}
 
 	s.StaticObjects = make([]GameObject, 0, len(packet.DumbObjects))
