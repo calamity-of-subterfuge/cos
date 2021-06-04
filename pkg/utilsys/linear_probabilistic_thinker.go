@@ -38,11 +38,15 @@ func (t linearProbabilisticThinker) Select(children []ScoredAction) int {
 		rollingSumScoresInConsideration = append(rollingSumScoresInConsideration, sum)
 	}
 
+	if sum == 0 {
+		return indexesInConsideration[rand.Intn(len(indexesInConsideration))]
+	}
+
 	seed := rand.Float64() * sum
 
 	for idx, psum := range rollingSumScoresInConsideration {
 		if seed < psum {
-			return idx
+			return indexesInConsideration[idx]
 		}
 	}
 

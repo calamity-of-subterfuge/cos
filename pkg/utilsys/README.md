@@ -177,9 +177,9 @@ Other types you should definitely consider, especially when nesting:
   to avoid particularly ridiculous behavior.
 - A `SoftMaxProbabilistic` system adds a bit of randomness to the AI. It selects
   an action from the given list of choices at random, where the odds of
-  selecting an action is proportional to e^score. This selects bad choices much
-  less often than a linear system, but a threshold to avoid particularly
-  ridiculous behavior is still encouraged.
+  selecting an action is proportional to e^(factor*score). This is much more
+  predictable than the `LinearProbabilistic` system for a reasonable factor value
+  (usually between 5 and 30). Higher factors mean less random.
 
 ```go
 var world interface{} // typically your pkg.Game
