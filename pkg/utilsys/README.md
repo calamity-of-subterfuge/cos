@@ -28,6 +28,12 @@ https://docs.rs/big-brain however it is not a port.
   is researched) to produce the final odds (e.g. 3 successes for every 5
   failures) which are then converted to the final probability (e.g. 3 / (3+5) =
   0.375).
+- A `ScoredAction` is a `Scorer` and `Action` pair. Note that `Scorer` and
+  `Action`s are often but not always independent. For an example of a
+  dependendent pair, see `CooldownQualifiedScoredAction`. It is usually simpler
+  to build as much as possible about the combination independently and then
+  merge them with a `ScoredAction` specifically focused on how they are tied
+  together, as dependent `Scorer` and `Action` logic can be harder to follow.
 
 ### Scoring Convention
 
@@ -186,11 +192,11 @@ var world interface{} // typically your pkg.Game
 utilsys.NewAI(
     world,
     utilsys.NewHighestScoreThinker([]utilsys.ScoredActionBuilder{
-        {
+        ScorerBuilderAndActionBuilder{
             Action: MeanderAction{},
             Scorer: utilsys.FixedScorer{Score: 0.1}
         },
-        {
+        ScorerBuilderAndActionBuilder{
             Action: AcquireResourceAction{Resource: "gold"},
             Scorer: AcquireResourceScorer{}
         },

@@ -64,11 +64,8 @@ type thinkerBuilder struct {
 
 func (b thinkerBuilder) Build() Action {
 	initializedActions := make([]ScoredAction, len(b.actions))
-	for idx, actB := range b.actions {
-		initializedActions[idx] = ScoredAction{
-			Action: actB.Action.Build(),
-			Scorer: actB.Scorer.Build(),
-		}
+	for idx, builder := range b.actions {
+		initializedActions[idx] = builder.Build()
 	}
 	return &thinker{
 		thinker:       b.thinker,
