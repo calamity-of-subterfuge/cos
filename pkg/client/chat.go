@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/calamity-of-subterfuge/cos/lib/rbuf"
 	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 	"github.com/calamity-of-subterfuge/cos/pkg/utils"
@@ -100,7 +102,10 @@ func (c *Chat) chatMessage(packet *srvpkts.ChatMessagePacket) {
 		c.RecentChatAuthorUIDsToCount[packet.AuthorUID]++
 	} else {
 		c.RecentChatAuthorUIDsToCount[packet.AuthorUID] = 1
-		author = c.LocalChatAuthorsByUID[packet.AuthorUID]
+		author, found = c.LocalChatAuthorsByUID[packet.AuthorUID]
+		if !found {
+			panic(fmt.Sprintf("chatMessage from unknown chat author %q", packet.AuthorUID))
+		}
 		c.RecentChatAuthorsByUID[packet.AuthorUID] = author
 	}
 
