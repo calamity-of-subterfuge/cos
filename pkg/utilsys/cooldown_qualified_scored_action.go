@@ -27,8 +27,10 @@ func (s *cooldownQualifiedScorer) Score() float64 {
 }
 
 type cooldownQualifiedAction struct {
-	action         Action
-	lastFinishedAt *time.Time
+	action                      Action
+	lastFinishedAt              *time.Time
+	cooldownSuppressedOnSuccess bool
+	cooldownSuppressedOnFailure bool
 }
 
 func (a *cooldownQualifiedAction) State() ActionState {
@@ -63,9 +65,13 @@ func (a *cooldownQualifiedAction) Reset() {
 func (a *cooldownQualifiedAction) checkIfFinished() {
 	switch a.State() {
 	case ActionStateFailure:
-		fallthrough
+		if !a.cooldownSuppressedOnFailure {
+			*a.lastFinishedAt = time.Now()
+		}
 	case ActionStateSuccess:
-		*a.lastFinishedAt = time.Now()
+		if !a.cooldownSuppressedOnSuccess {
+			*a.lastFinishedAt = time.Now()
+		}
 	}
 }
 
@@ -79,6 +85,9 @@ type CooldownQualifiedScoredAction struct {
 
 	MinCooldown time.Duration
 	MaxCooldown time.Duration
+
+	CooldownSuppressedOnSuccess bool
+	CooldownSuppressedOnFailure bool
 }
 
 func (b CooldownQualifiedScoredAction) Build() ScoredAction {
@@ -93,8 +102,10 @@ func (b CooldownQualifiedScoredAction) Build() ScoredAction {
 			lastFinishedAt: &finishedAt,
 		},
 		Action: &cooldownQualifiedAction{
-			action:         built.Action,
-			lastFinishedAt: &finishedAt,
+			action:                      built.Action,
+			cooldownSuppressedOnSuccess: b.CooldownSuppressedOnSuccess,
+			cooldownSuppressedOnFailure: b.CooldownSuppressedOnFailure,
+			lastFinishedAt:              &finishedAt,
 		},
 	}
 }
