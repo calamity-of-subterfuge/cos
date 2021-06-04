@@ -51,14 +51,14 @@ func QueueAI(cfg *AIConfig, auth *AuthToken) (*websocket.Conn, map[string]interf
 
 	var conn *websocket.Conn
 	headers := make(http.Header)
-	headers.Add("Origin", WEBSOCKET_ORIGIN)
+	headers.Add("Origin", utils.WEBSOCKET_ORIGIN)
 
 	conn, _, err = websocket.DefaultDialer.Dial(resp.URL, headers)
 	if err != nil {
 		return nil, nil, fmt.Errorf("dialing %s: %w", resp.URL, err)
 	}
 
-	err = conn.SetWriteDeadline(time.Now().Add(CONN_WRITE_TIMEOUT))
+	err = conn.SetWriteDeadline(time.Now().Add(utils.CONN_WRITE_TIMEOUT))
 	if err != nil {
 		closeConn(websocket.CloseInternalServerErr, conn)
 		return nil, nil, fmt.Errorf("set write deadline: %w", err)
@@ -74,7 +74,7 @@ func QueueAI(cfg *AIConfig, auth *AuthToken) (*websocket.Conn, map[string]interf
 		closeConn(websocket.CloseInternalServerErr, conn)
 		return nil, nil, fmt.Errorf("clear write deadline: %w", err)
 	}
-	err = conn.SetReadDeadline(time.Now().Add(CONN_READ_TIMEOUT))
+	err = conn.SetReadDeadline(time.Now().Add(utils.CONN_READ_TIMEOUT))
 	if err != nil {
 		closeConn(websocket.CloseInternalServerErr, conn)
 		return nil, nil, fmt.Errorf("set read deadline: %w", err)
@@ -144,7 +144,7 @@ func requestLobbySocketServer(cfg *AIConfig, auth *AuthToken) (*queueAIResponse,
 	var req *http.Request
 	req, err = http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s/api/1/play/ai", API_BASE),
+		fmt.Sprintf("%s/api/1/play/ai", utils.API_BASE),
 		bytes.NewBuffer(bodyMarshalled),
 	)
 	if err != nil {

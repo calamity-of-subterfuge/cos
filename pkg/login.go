@@ -54,7 +54,7 @@ func Login(email, grantIden, secret string) (*AuthToken, error) {
 	}
 	var resp *http.Response
 	resp, err = client.Post(
-		API_BASE+"/api/1/auth/sessions",
+		utils.API_BASE+"/api/1/auth/sessions",
 		"application/json",
 		bytes.NewBuffer(bodyMarshalled),
 	)

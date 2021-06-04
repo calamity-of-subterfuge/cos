@@ -9,6 +9,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -97,9 +98,9 @@ func (c *Conn) Close() {
 }
 
 func (c *Conn) manageSend() {
-	lowerTimeout := CONN_READ_TIMEOUT
-	if CONN_WRITE_TIMEOUT < lowerTimeout {
-		lowerTimeout = CONN_WRITE_TIMEOUT
+	lowerTimeout := utils.CONN_READ_TIMEOUT
+	if utils.CONN_WRITE_TIMEOUT < lowerTimeout {
+		lowerTimeout = utils.CONN_WRITE_TIMEOUT
 	}
 
 	pingInterval := (lowerTimeout * 9) / 10
@@ -133,7 +134,7 @@ outerLoop:
 				break outerLoop
 			}
 		case <-pingTicker.C:
-			err := c.conn.SetWriteDeadline(time.Now().Add(CONN_WRITE_TIMEOUT))
+			err := c.conn.SetWriteDeadline(time.Now().Add(utils.CONN_WRITE_TIMEOUT))
 			if err != nil {
 				log.Printf("Error setting write dealding for ping to %s: %v", c.UID, err)
 				c.Close()
@@ -176,7 +177,7 @@ outerLoop:
 		}
 	}
 
-	cerr := c.conn.SetWriteDeadline(time.Now().Add(CONN_WRITE_TIMEOUT))
+	cerr := c.conn.SetWriteDeadline(time.Now().Add(utils.CONN_WRITE_TIMEOUT))
 	if cerr != nil {
 		log.Printf("failed to set write deadline on %s for close code: %v", c.UID, cerr)
 	} else {
@@ -211,7 +212,7 @@ func (c *Conn) sendPackets(packets []interface{}) error {
 		return fmt.Errorf("failed to marshal packets despite each individual packet marshalling fine! packets: %v, err: %w", packets, err)
 	}
 
-	err = c.conn.SetWriteDeadline(time.Now().Add(CONN_WRITE_TIMEOUT))
+	err = c.conn.SetWriteDeadline(time.Now().Add(utils.CONN_WRITE_TIMEOUT))
 	if err != nil {
 		return fmt.Errorf("failed to set write deadline: %w", err)
 	}
@@ -228,11 +229,11 @@ func (c *Conn) manageRecv() {
 	// closing the websocket
 
 	c.conn.SetPongHandler(func(string) error {
-		return c.conn.SetReadDeadline(time.Now().Add(CONN_READ_TIMEOUT))
+		return c.conn.SetReadDeadline(time.Now().Add(utils.CONN_READ_TIMEOUT))
 	})
 
 	for {
-		err := c.conn.SetReadDeadline(time.Now().Add(CONN_READ_TIMEOUT))
+		err := c.conn.SetReadDeadline(time.Now().Add(utils.CONN_READ_TIMEOUT))
 		if err != nil {
 			log.Printf("Failed to set read deadline for %s: %v", c.UID, err)
 			c.Close()

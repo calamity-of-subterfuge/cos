@@ -6,11 +6,12 @@ import (
 	"log"
 	"time"
 
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 	"github.com/gorilla/websocket"
 )
 
 func closeConn(code int, conn *websocket.Conn) {
-	err := conn.SetWriteDeadline(time.Now().Add(CONN_WRITE_TIMEOUT))
+	err := conn.SetWriteDeadline(time.Now().Add(utils.CONN_WRITE_TIMEOUT))
 	if err != nil {
 		conn.Close()
 		return
