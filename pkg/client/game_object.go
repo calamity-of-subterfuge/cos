@@ -2,6 +2,7 @@ package client
 
 import (
 	"log"
+	"math"
 
 	"github.com/calamity-of-subterfuge/cos/pkg/srvpkts"
 	"github.com/jakecoffman/cp"
@@ -76,6 +77,10 @@ func (o *GameObject) Sync(packet *srvpkts.GameObjectSync) *GameObject {
 	body.SetVelocity(packet.Velocity.X, packet.Velocity.Y)
 	body.SetAngle(packet.Rotation)
 	body.SetAngularVelocity(packet.AngularVelocity)
+	transform := bodyTransform(body)
+	body.EachShape(func(s *cp.Shape) {
+		s.Update(transform)
+	})
 	o.Body = body
 	return o
 }
@@ -87,10 +92,26 @@ func (o *GameObject) Update(packet *srvpkts.GameObjectUpdatePacket) *GameObject 
 	o.Body.SetVelocity(packet.Velocity.X, packet.Velocity.Y)
 	o.Body.SetAngle(packet.Rotation)
 	o.Body.SetAngularVelocity(packet.AngularVelocity)
+	transform := bodyTransform(o.Body)
+	o.Body.EachShape(func(s *cp.Shape) {
+		s.Update(transform)
+	})
 	o.Animation = packet.Animation
 	o.AnimationPlaying = packet.AnimationPlaying
 	o.AnimationLooping = packet.AnimationLooping
 	return o
+}
+
+func bodyTransform(body *cp.Body) cp.Transform {
+	a := body.Angle()
+	p := body.Position()
+	c := body.CenterOfGravity()
+	rot := cp.Vector{X: math.Cos(a), Y: math.Sin(a)}
+
+	return cp.NewTransformTranspose(
+		rot.X, -rot.Y, p.X-(c.X*rot.X-c.Y*rot.Y),
+		rot.Y, rot.X, p.Y-(c.X*rot.Y+c.Y*rot.X),
+	)
 }
 
 func makeCPShape(body *cp.Body, shp *srvpkts.Shape) *cp.Shape {
