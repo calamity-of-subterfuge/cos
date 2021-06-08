@@ -40,6 +40,9 @@ type State struct {
 	// mapped from their uid.
 	SmartObjectsByUID map[string]*SmartObject
 
+	// SmartObjectsByUnitType is an index on unit type for smart objects.
+	SmartObjectsByUnitType UnitTypeLookup
+
 	// GameObjectsByUID contains any generic game objects within vision.
 	// Besides handling them for the purpose of collision these are largely
 	// irrelevant to gameplay.
@@ -134,6 +137,7 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 			}
 
 			delete(s.SmartObjectsByUID, v.UID)
+			s.SmartObjectsByUnitType.Remove(ov)
 		} else {
 			delete(s.GenericObjectsByUID, v.UID)
 		}
@@ -163,6 +167,7 @@ func (s *State) HandleMessage(packet srvpkts.Packet) {
 		s.updateGameTime(v.GameTime)
 		newSO := (&SmartObject{}).Sync(&v.Object)
 		s.SmartObjectsByUID[v.Object.UID] = newSO
+		s.SmartObjectsByUnitType.Add(newSO)
 
 		if newSO.ControllingTeam == s.MyTeam && newSO.ControllingRole == s.MyRole && s.onControllableSmartObjectLoaded != nil {
 			for _, listener := range s.onControllableSmartObjectLoaded {
@@ -218,8 +223,11 @@ func (s *State) handleGameSync(packet *srvpkts.GameSyncPacket) {
 	}
 
 	s.SmartObjectsByUID = make(map[string]*SmartObject, len(packet.SmartObjects))
+	s.SmartObjectsByUnitType = make(UnitTypeLookup)
 	for _, obj := range packet.SmartObjects {
-		s.SmartObjectsByUID[obj.UID] = (&SmartObject{}).Sync(&obj)
+		newSO := (&SmartObject{}).Sync(&obj)
+		s.SmartObjectsByUID[obj.UID] = newSO
+		s.SmartObjectsByUnitType.Add(newSO)
 	}
 
 	s.GenericObjectsByUID = make(map[string]*GameObject)
