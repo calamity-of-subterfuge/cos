@@ -106,7 +106,7 @@ func makeCPShape(body *cp.Body, shp *srvpkts.Shape) *cp.Shape {
 			cpVerts[idx] = cp.Vector{X: vert.X, Y: vert.Y}
 		}
 
-		res := cp.NewPolyShape(body, len(details.Vertices), cpVerts, cp.NewTransformIdentity(), details.Radius)
+		res := cp.NewPolyShapeRaw(body, len(details.Vertices), cpVerts, details.Radius)
 		res.SetMass(shp.Mass)
 		return res
 	default:
