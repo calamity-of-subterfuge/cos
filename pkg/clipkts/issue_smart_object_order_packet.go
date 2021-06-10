@@ -13,7 +13,7 @@ type IssueSmartObjectOrderPacket struct {
 
 	// Order contains the order being issued and should be processed based
 	// on the UnitType of the smart object.
-	Order map[string]interface{} `json:"order" mapstructure:"order"`
+	Order interface{} `json:"order" mapstructure:"order"`
 }
 
 func (p *IssueSmartObjectOrderPacket) GetType() string {
