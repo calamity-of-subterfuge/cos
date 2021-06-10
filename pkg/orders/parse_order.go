@@ -3,10 +3,8 @@ package orders
 import (
 	"errors"
 	"fmt"
-	"reflect"
-	"strconv"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/calamity-of-subterfuge/cos/pkg/utils"
 )
 
 type orderParser func(map[string]interface{}) (Order, error)
@@ -39,45 +37,10 @@ func ParseOrder(parsed map[string]interface{}) (Order, error) {
 	return parser(parsed)
 }
 
-func decodeHook(from reflect.Value, to reflect.Value) (interface{}, error) {
-	if from.Kind() == reflect.String {
-		switch to.Kind() {
-		case reflect.Int:
-			return strconv.Atoi(from.String())
-		case reflect.Int8:
-			a, e := strconv.ParseInt(from.String(), 10, 8)
-			return int8(a), e
-		case reflect.Int16:
-			a, e := strconv.ParseInt(from.String(), 10, 16)
-			return int16(a), e
-		case reflect.Int32:
-			a, e := strconv.ParseInt(from.String(), 10, 32)
-			return int32(a), e
-		case reflect.Int64:
-			return strconv.ParseInt(from.String(), 10, 64)
-		case reflect.Float32:
-			a, e := strconv.ParseFloat(from.String(), 32)
-			return float32(a), e
-		case reflect.Float64:
-			return strconv.ParseFloat(from.String(), 64)
-		}
-	}
-	return from.Interface(), nil
-}
-
 func parseSingleOrderOfType(parsed map[string]interface{}, typ Order) (Order, error) {
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Squash:     true,
-		DecodeHook: decodeHook,
-		Result:     typ,
-	})
+	_, err := utils.DecodeWithType(parsed, typ)
 	if err != nil {
-		return nil, fmt.Errorf("constructing decoder: %w", err)
+		return nil, err
 	}
-
-	err = decoder.Decode(parsed)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal order: %w", err)
-	}
-	return typ, nil
+	return typ, err
 }

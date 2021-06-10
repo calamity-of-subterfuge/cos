@@ -9,7 +9,7 @@ import "errors"
 // canceled.
 //
 // The list of active trades on the tent are visible in the tents
-// Additional details. See unitdets.Tent for the format.
+// Additional details. See unitdets.TentSync and unitdets.TentUpdate for the format.
 type InitiateTradeOrder struct {
 	// Type is always initiate-trade
 	Type string `json:"type" mapstructure:"type"`
