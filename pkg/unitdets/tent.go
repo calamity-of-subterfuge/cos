@@ -25,11 +25,11 @@ type TentOffer struct {
 // player then the offers will always be empty maps.
 type TentSyncDetails struct {
 	// IncomingOffers are the offers from other teams which have been made
-	// to the team owning this tent
+	// to the team owning this tent. The keys are uids of the offers.
 	IncomingOffers map[string]TentOffer `json:"incoming_offers" mapstructure:"incoming_offers"`
 
 	// OutgoingOffers are the offers from this team which have been made to
-	// other teams.
+	// other teams. The keys are the uids of the offers.
 	OutgoingOffers map[string]TentOffer `json:"outgoing_offers" mapstructure:"outgoing_offers"`
 }
 
@@ -44,9 +44,11 @@ type TentUpdateDetails struct {
 	// in this tent, either because they were responded to or withdrawn
 	RemovedOutgoingOffers []string
 
-	// AddedIncomingOffers contains all the new incoming offers on this tent
-	AddedIncomingOffers []TentOffer
+	// AddedIncomingOffers contains all the new incoming offers on this tent,
+	// where the keys are uids
+	AddedIncomingOffers map[string]TentOffer
 
-	// AddedOutgoingOffers contains all the new outgoing offers on this tent
-	AddedOutgoingOffers []TentOffer
+	// AddedOutgoingOffers contains all the new outgoing offers on this tent,
+	// where the keys are uids
+	AddedOutgoingOffers map[string]TentOffer
 }
