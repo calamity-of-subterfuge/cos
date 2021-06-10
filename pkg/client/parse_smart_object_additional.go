@@ -24,6 +24,10 @@ type SmartObjectAdditionalParser func(*srvpkts.SmartObjectSync) (SmartObjectAddi
 
 var smartObjectsByUnitType map[string]SmartObjectAdditionalParser = make(map[string]SmartObjectAdditionalParser)
 
+func registerSmartObjectUnitAdditional(unitType string, parser SmartObjectAdditionalParser) {
+	smartObjectsByUnitType[unitType] = parser
+}
+
 // ParseSmartObjectAdditional parses a SmartObjectAdditional from the given
 // SmartObjectSync based on its UnitType
 func ParseSmartObjectAdditional(sync *srvpkts.SmartObjectSync) (SmartObjectAdditional, error) {
