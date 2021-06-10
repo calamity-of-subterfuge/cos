@@ -38,17 +38,17 @@ type TentSyncDetails struct {
 type TentUpdateDetails struct {
 	// RemovedIncomingOffers is the slice of incoming offer uids which are no
 	// longer in this tent, either because they were responded to or withdrawn
-	RemovedIncomingOffers []string
+	RemovedIncomingOffers []string `json:"removed_incoming_offers" mapstructure:"removed_incoming_offers"`
 
 	// RemovedOutgoings is the slice of outgoing offer uids which are no longer
 	// in this tent, either because they were responded to or withdrawn
-	RemovedOutgoingOffers []string
+	RemovedOutgoingOffers []string `json:"removed_outgoing_offers" mapstructure:"removed_outgoing_offers"`
 
 	// AddedIncomingOffers contains all the new incoming offers on this tent,
 	// where the keys are uids
-	AddedIncomingOffers map[string]TentOffer
+	AddedIncomingOffers map[string]TentOffer `json:"added_incoming_offers" mapstructure:"added_incoming_offers"`
 
 	// AddedOutgoingOffers contains all the new outgoing offers on this tent,
 	// where the keys are uids
-	AddedOutgoingOffers map[string]TentOffer
+	AddedOutgoingOffers map[string]TentOffer `json:"added_outgoing_offers" mapstructure:"added_outgoing_offers"`
 }
