@@ -22,6 +22,10 @@ func (p *IssueSmartObjectOrderPacket) GetType() string {
 
 func (p *IssueSmartObjectOrderPacket) PrepareForMarshal() {
 	p.Type = p.GetType()
+
+	if packet, ok := p.Order.(Packet); ok {
+		packet.PrepareForMarshal()
+	}
 }
 
 func init() {
