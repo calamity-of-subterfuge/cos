@@ -72,3 +72,21 @@ func (l TeamRoleUIDLookup) EachOnTeam(team int, fnc func(string)) {
 		}
 	}
 }
+
+// EachOnTeamWithRole calls the given function with the uid of every player
+// in the given team with the given role
+func (l TeamRoleUIDLookup) EachOnTeamWithRole(team int, role utils.Role, fnc func(string)) {
+	rolesToUIDs, ok := l[team]
+	if !ok {
+		return
+	}
+
+	uids, hasWithRole := rolesToUIDs[role]
+	if !hasWithRole {
+		return
+	}
+
+	for uid := range uids {
+		fnc(uid)
+	}
+}
